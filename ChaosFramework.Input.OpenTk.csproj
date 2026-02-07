@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>ChaosFramework.Input.OpenTK</AssemblyName>
+    <RootNamespace>ChaosFramework.Input.OpenTk</RootNamespace>
+    <ProjectGuid>{6cda2feb-0852-44aa-abba-b76aa3ea145a}</ProjectGuid>
+  </PropertyGroup>
+
+  <!-- Properties -->
+  <Import Project="$(SolutionDir)submodules/ChaosPresets.Targets/Properties/Common.targets" />
+  <Import Project="$(SolutionDir)submodules/ChaosPresets.Targets/Properties/OutputType/Library.targets" />
+
+  <!-- Configurations -->
+  <Import Project="$(SolutionDir)submodules/ChaosPresets.Targets/Configurations.targets" />
+
+  <!-- Included Files -->
+  <ItemGroup>
+    <Compile Include="source\**\*.cs" />
+    <None Include="License/**/*.txt" />
+    <None Include="OpenTK.dll.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChaosFramework.Input\ChaosFramework.Input.csproj" />
+    <ProjectReference Include="..\ChaosFramework.Platform.OpenTK\ChaosFramework.Platform.OpenTK.csproj" />
+  </ItemGroup>
+
+  <!-- Analyzers -->
+  <PropertyGroup>
+    <ChaosAnalyzers_CleanCode_Analyzer_TF>netstandard2.0</ChaosAnalyzers_CleanCode_Analyzer_TF>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)submodules/ChaosPresets.References/Analyzers/ChaosAnalyzers.CleanCode.targets" />
+
+  <!-- Cleanup Task -->
+  <Import Project="$(SolutionDir)submodules/ChaosPresets.References/BuildTasks/ChaosBuild.CodeFormatter.Tasks.ChangedProjectFiles.targets" />
+
+</Project>
