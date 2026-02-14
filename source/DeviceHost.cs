@@ -6,7 +6,7 @@ namespace ChaosFramework.Input.OpenTk
     public class DeviceHost(InputContext parent)
         : InputDeviceHost
     {
-        readonly Keyboard keyboard = new(parent);
+        readonly OpenTkKeyboard keyboard = new(parent);
 
         void InputDeviceHost.RefreshDeviceList() { }
 
