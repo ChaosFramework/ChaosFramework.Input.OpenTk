@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ChaosFramework.Input.InputEvents;
+using OpenTK.Input;
 
 namespace ChaosFramework.Input.OpenTk
 {
@@ -10,20 +11,27 @@ namespace ChaosFramework.Input.OpenTk
         {
             readonly OpenTK.Input.Key mappedKey = hid2Tk.GetValueOrDefault(key);
 
+            bool previous, next;
+
             public override string GetAxisString()
                 => $"Keyboard Key {key}";
 
             protected override void Update(object data)
-            { }
+                => value = next ? 1 : 0;
 
-            internal void UpdateState()
+            internal void ProcessEvent(KeyboardState newState)
             {
-                bool down = keyboard.currentState.IsKeyDown(mappedKey);
-                if (down != keyboard.oldState.IsKeyDown(mappedKey))
-                    AddEvent(down
-                        ? new InputPushEvent<OpenTkKey>(this, new InputChange(0, 1))
-                        : new InputReleaseEvent<OpenTkKey>(this, new InputChange(1, 0))
+                previous = next;
+                next = newState.IsKeyDown(mappedKey);
+                if (next != previous)
+                {
+                    InputChange change = new(previous ? 1 : 0, next ? 1 : 0);
+                    AddEvent(next
+                        ? new InputPushEvent<OpenTkKey>(this, change)
+                        : new InputReleaseEvent<OpenTkKey>(this, change)
                         );
+                    AddEvent(new InputChangeEvent<OpenTkKey>(this, change));
+                }
             }
         }
     }

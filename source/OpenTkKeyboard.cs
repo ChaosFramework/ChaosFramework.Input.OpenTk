@@ -5,8 +5,6 @@ namespace ChaosFramework.Input.OpenTk
     public partial class OpenTkKeyboard
         : Keyboard
     {
-        KeyboardState oldState, currentState;
-
         public OpenTkKeyboard(InputContext parent)
             : base(parent)
         { }
@@ -14,12 +12,10 @@ namespace ChaosFramework.Input.OpenTk
         protected override Key GenerateKey(HidUsage hidUsage)
             => new OpenTkKey(this, hidUsage);
 
-        internal void UpdateState(KeyboardState newState)
+        internal void ProcessEvents(KeyboardState newState)
         {
-            oldState = currentState;
-            currentState = newState;
             foreach (OpenTkKey key in this)
-                key.UpdateState();
+                key.ProcessEvent(newState);
         }
     }
 }

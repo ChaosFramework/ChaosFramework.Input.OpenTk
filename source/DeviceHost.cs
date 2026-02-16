@@ -11,7 +11,7 @@ namespace ChaosFramework.Input.OpenTk
         void InputDeviceHost.RefreshDeviceList() { }
 
         void InputDeviceHost.Update()
-            => keyboard.UpdateState(OpenTK.Input.Keyboard.GetState());
+            => keyboard.ProcessEvents(OpenTK.Input.Keyboard.GetState());
 
         IEnumerator<InputDevice> IEnumerable<InputDevice>.GetEnumerator()
             => GetEnumerator();
