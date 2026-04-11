@@ -3,13 +3,13 @@ using ChaosAnalyzers.ClassIntegrity;
 namespace ChaosFramework.Input.OpenTk
 {
 
-    internal interface StateTrackerOwner<State>
+    internal interface StateTracker<State>
     {
-        StateTracker<State> stateTracker { get; }
+        TrackedState<State> state { get; }
         State GetImmediate(int index);
     }
 
-    internal class StateTracker<State>
+    internal class TrackedState<State>
     {
         public State intermediate, consistent;
         public void AdvanceFrame()
@@ -36,7 +36,7 @@ namespace ChaosFramework.Input.OpenTk
 
     internal abstract class OpenTkDeviceImplementation<Parent, State>
         : OpenTkDeviceImplementation
-        where Parent : InputDevice, StateTrackerOwner<State>
+        where Parent : InputDevice, StateTracker<State>
     {
         protected readonly Parent parent;
 
@@ -44,9 +44,9 @@ namespace ChaosFramework.Input.OpenTk
 
         protected internal sealed override void InputThreadUpdate()
         {
-            parent.stateTracker.intermediate = parent.GetImmediate(index);
+            parent.state.intermediate = parent.GetImmediate(index);
             foreach (OpenTkAxisImplementation<State> axis in parent)
-                axis.CreateEvents(parent.stateTracker.intermediate);
+                axis.CreateEvents(parent.state.intermediate);
         }
 
         [ExplicitConstructor]
@@ -54,7 +54,7 @@ namespace ChaosFramework.Input.OpenTk
             : base(index)
         {
             this.parent = parent;
-            parent.stateTracker.intermediate = parent.stateTracker.consistent = parent.GetImmediate(index);
+            parent.state.intermediate = parent.state.consistent = parent.GetImmediate(index);
         }
     }
 }

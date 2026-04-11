@@ -4,15 +4,16 @@ namespace ChaosFramework.Input.OpenTk
 {
     public partial class OpenTkKeyboard
         : Keyboard
-        , StateTrackerOwner<KeyboardState>
+        , StateTracker<KeyboardState>
     {
         internal sealed class Implementation(OpenTkKeyboard parent, int index)
             : OpenTkDeviceImplementation<OpenTkKeyboard, KeyboardState>(parent, index)
             ;
 
-        StateTracker<KeyboardState> stateTracker = new StateTracker<KeyboardState>();
-        StateTracker<KeyboardState> StateTrackerOwner<KeyboardState>.stateTracker => stateTracker;
-        KeyboardState StateTrackerOwner<KeyboardState>.GetImmediate(int index)
+        readonly TrackedState<KeyboardState> state = new();
+        TrackedState<KeyboardState> StateTracker<KeyboardState>.state => state;
+
+        KeyboardState StateTracker<KeyboardState>.GetImmediate(int index)
             => OpenTK.Input.Keyboard.GetState(index);
 
         public OpenTkKeyboard(InputContext parent)
@@ -22,11 +23,11 @@ namespace ChaosFramework.Input.OpenTk
         public override void AdvanceFrame()
         {
             base.AdvanceFrame();
-            stateTracker.AdvanceFrame();
+            state.AdvanceFrame();
         }
 
         public override bool IsConnected()
-            => stateTracker.consistent.IsConnected;
+            => state.consistent.IsConnected;
 
         protected override Keyboard.Key GenerateKey(HidUsage hidUsage)
             => new Key(this, hidUsage);

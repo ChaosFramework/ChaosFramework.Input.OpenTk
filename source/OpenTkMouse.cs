@@ -7,16 +7,16 @@ namespace ChaosFramework.Input.OpenTk
 {
     public sealed partial class OpenTkMouse(InputContext parent)
         : Mouse(parent)
-        , StateTrackerOwner<MouseState>
+        , StateTracker<MouseState>
     {
         internal class Implementation(OpenTkMouse parent, int index)
             : OpenTkDeviceImplementation<OpenTkMouse, MouseState>(parent, index)
             ;
 
-        readonly StateTracker<MouseState> stateTracker = new();
-        StateTracker<MouseState> StateTrackerOwner<MouseState>.stateTracker => stateTracker;
+        readonly TrackedState<MouseState> state = new();
+        TrackedState<MouseState> StateTracker<MouseState>.state => state;
 
-        MouseState StateTrackerOwner<MouseState>.GetImmediate(int index)
+        MouseState StateTracker<MouseState>.GetImmediate(int index)
             => OpenTK.Input.Mouse.GetState(index);
 
         protected override Mouse.Position GenerateAxis(Direction direction)
@@ -33,11 +33,11 @@ namespace ChaosFramework.Input.OpenTk
         public override void AdvanceFrame()
         {
             base.AdvanceFrame();
-            stateTracker.AdvanceFrame();
+            state.AdvanceFrame();
         }
 
         public override bool IsConnected()
-            => stateTracker.consistent.IsConnected;
+            => state.consistent.IsConnected;
 
         Button GenerateButton(OpenTK.Input.MouseButton tkButton)
             => new Button(this, tkButton);

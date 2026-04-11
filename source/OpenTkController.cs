@@ -7,7 +7,7 @@ namespace ChaosFramework.Input.OpenTk
 {
     partial class OpenTkController
         : ChaosFramework.Input.Controller
-        , StateTrackerOwner<GamePadState>
+        , StateTracker<GamePadState>
     {
         internal class Implementation(OpenTkController parent, int index)
             : OpenTkDeviceImplementation<OpenTkController, GamePadState>(parent, index)
@@ -37,10 +37,10 @@ namespace ChaosFramework.Input.OpenTk
         readonly Stick leftStick, rightStick;
         readonly Trigger leftTrigger, rightTrigger;
 
-        readonly StateTracker<GamePadState> stateTracker = new();
-        StateTracker<GamePadState> StateTrackerOwner<GamePadState>.stateTracker => stateTracker;
+        readonly TrackedState<GamePadState> state = new();
+        TrackedState<GamePadState> StateTracker<GamePadState>.state => state;
 
-        GamePadState StateTrackerOwner<GamePadState>.GetImmediate(int index)
+        GamePadState StateTracker<GamePadState>.GetImmediate(int index)
             => GamePad.GetState(index);
 
         public OpenTkController(InputContext context)
@@ -88,10 +88,10 @@ namespace ChaosFramework.Input.OpenTk
         public override void AdvanceFrame()
         {
             base.AdvanceFrame();
-            stateTracker.AdvanceFrame();
+            state.AdvanceFrame();
         }
 
         public override sealed bool IsConnected()
-            => stateTracker.consistent.IsConnected;
+            => state.consistent.IsConnected;
     }
 }
