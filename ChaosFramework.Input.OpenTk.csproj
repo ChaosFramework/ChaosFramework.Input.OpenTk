@@ -1,9 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- Project Metadata -->
   <PropertyGroup>
     <AssemblyName>ChaosFramework.Input.OpenTK</AssemblyName>
     <RootNamespace>ChaosFramework.Input.OpenTk</RootNamespace>
-    <ProjectGuid>{6cda2feb-0852-44aa-abba-b76aa3ea145a}</ProjectGuid>
+    <ProjectGuid>{6CDA2FEB-0852-44AA-ABBA-B76AA3EA145A}</ProjectGuid>
   </PropertyGroup>
 
   <!-- Properties -->
@@ -15,13 +17,14 @@
 
   <!-- Included Files -->
   <ItemGroup>
-    <Compile Include="source\**\*.cs" />
+    <Compile Include="source/**/*.cs" />
     <None Include="License/**/*.txt" />
     <None Include="OpenTK.dll.config" />
   </ItemGroup>
 
   <!-- References -->
   <Import Project="$(SolutionDir)submodules/ChaosPresets.References/ProjectReferences/ChaosFramework.Input.targets" />
+
   <ItemGroup>
     <PackageReference Include="OpenTK" Version="3.0.1" />
   </ItemGroup>

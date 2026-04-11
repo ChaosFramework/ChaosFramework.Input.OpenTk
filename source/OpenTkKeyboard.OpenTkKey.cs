@@ -1,38 +1,28 @@
-using System.Collections.Generic;
-using ChaosFramework.Input.InputEvents;
 using OpenTK.Input;
+using TkKey = OpenTK.Input.Key;
 
 namespace ChaosFramework.Input.OpenTk
 {
     public partial class OpenTkKeyboard
     {
-        public partial class OpenTkKey(OpenTkKeyboard keyboard, HidUsage key)
-            : Key(keyboard, key)
+        public new partial class Key
+            : Keyboard.Key
+            , OpenTkAxisImplementation<KeyboardState>
         {
-            readonly OpenTK.Input.Key mappedKey = hid2Tk.GetValueOrDefault(key);
+            public readonly TkKey tkKey;
 
-            bool previous, next;
+            public Key(OpenTkKeyboard keyboard, HidUsage key)
+                : base(keyboard, key)
+            {
+                if (!hid2Tk.TryGetValue(key, out tkKey))
+                    tkKey = TkKey.Unknown;
+            }
 
             public override string GetAxisString()
-                => $"Keyboard Key {key}";
+                => $"Keyboard Key {hidKey}";
 
-            protected override void Update(object data)
-                => value = next ? 1 : 0;
-
-            internal void ProcessEvent(KeyboardState newState)
-            {
-                previous = next;
-                next = newState.IsKeyDown(mappedKey);
-                if (next != previous)
-                {
-                    InputChange change = new(previous ? 1 : 0, next ? 1 : 0);
-                    AddEvent(next
-                        ? new InputPushEvent<OpenTkKey>(this, change)
-                        : new InputReleaseEvent<OpenTkKey>(this, change)
-                        );
-                    AddEvent(new InputChangeEvent<OpenTkKey>(this, change));
-                }
-            }
+            void OpenTkAxisImplementation<KeyboardState>.CreateEvents(KeyboardState newState)
+                => SetDown<Key>(newState.IsKeyDown(tkKey));
         }
     }
 }

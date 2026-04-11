@@ -4,9 +4,9 @@ namespace ChaosFramework.Input.OpenTk
 {
     public partial class OpenTkKeyboard
     {
-        public partial class OpenTkKey
+        partial class Key
         {
-            public static readonly SysCol.Dictionary<HidUsage, OpenTK.Input.Key> hid2Tk = new()
+            static readonly SysCol.Dictionary<HidUsage, OpenTK.Input.Key> hid2Tk = new SysCol.Dictionary<HidUsage, OpenTK.Input.Key>()
             {
                 [HidUsage.ErrorRollOver] = OpenTK.Input.Key.Unknown,
                 [HidUsage.PostFail] = OpenTK.Input.Key.Unknown,
