@@ -1,8 +1,8 @@
+using System.Linq;
 using ChaosAnalyzers.ClassIntegrity;
 
 namespace ChaosFramework.Input.OpenTk
 {
-
     internal interface StateTracker<State>
     {
         TrackedState<State> state { get; }
@@ -45,7 +45,7 @@ namespace ChaosFramework.Input.OpenTk
         protected internal sealed override void InputThreadUpdate()
         {
             parent.state.intermediate = parent.GetImmediate(index);
-            foreach (OpenTkAxisImplementation<State> axis in parent)
+            foreach (OpenTkAxisImplementation<State> axis in parent.OfType<OpenTkAxisImplementation<State>>())
                 axis.CreateEvents(parent.state.intermediate);
         }
 

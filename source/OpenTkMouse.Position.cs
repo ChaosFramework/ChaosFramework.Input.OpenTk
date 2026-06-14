@@ -1,4 +1,5 @@
-using OpenTK.Input;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace ChaosFramework.Input.OpenTk
 {
@@ -6,7 +7,7 @@ namespace ChaosFramework.Input.OpenTk
     {
         public new class Position(InputDevice parent, Direction direction)
             : Mouse.Position(parent, direction)
-            , OpenTkAxisImplementation<MouseState>
+            , OpenTkAxisImplementation<Vector2>
         {
             long exactNext, exactCurrent;
             int oldPos;
@@ -20,9 +21,9 @@ namespace ChaosFramework.Input.OpenTk
                 base.AdvanceFrame();
             }
 
-            void OpenTkAxisImplementation<MouseState>.CreateEvents(MouseState state)
+            void OpenTkAxisImplementation<Vector2>.CreateEvents(Vector2 state)
             {
-                int newPos = direction == Direction.X ? state.X : state.Y;
+                int newPos = (int)(direction == Direction.X ? state.X : state.Y);
                 int delta = newPos - oldPos;
                 oldPos = newPos;
                 SetValue<Position>(exactNext += delta);

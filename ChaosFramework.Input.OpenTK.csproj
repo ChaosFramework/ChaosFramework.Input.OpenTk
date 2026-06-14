@@ -6,6 +6,7 @@
     <AssemblyName>ChaosFramework.Input.OpenTK</AssemblyName>
     <RootNamespace>ChaosFramework.Input.OpenTk</RootNamespace>
     <ProjectGuid>{6CDA2FEB-0852-44AA-ABBA-B76AA3EA145A}</ProjectGuid>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <!-- Properties -->
@@ -26,13 +27,10 @@
   <Import Project="$(SolutionDir)submodules/ChaosPresets.References/ProjectReferences/ChaosFramework.Input.targets" />
 
   <ItemGroup>
-    <PackageReference Include="OpenTK" Version="3.0.1" />
+    <PackageReference Include="OpenTK" Version="4.9.4" />
   </ItemGroup>
 
   <!-- Analyzers -->
-  <PropertyGroup>
-    <ChaosAnalyzers_CleanCode_Analyzer_TF>netstandard2.0</ChaosAnalyzers_CleanCode_Analyzer_TF>
-  </PropertyGroup>
   <Import Project="$(SolutionDir)submodules/ChaosPresets.References/Analyzers/ChaosAnalyzers.CleanCode.targets" />
 
   <!-- Cleanup Task -->

@@ -1,63 +1,82 @@
+using System.Linq;
 using ChaosFramework.Collections;
 using ChaosFramework.Collections.Immutable;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using Activator = System.Activator;
 using SysCol = System.Collections.Generic;
 using Type = System.Type;
 
 namespace ChaosFramework.Input.OpenTk
 {
-    public class DeviceHost(InputContext context)
+    public class DeviceHost
         : InputDeviceHost
     {
         private readonly record struct DeviceTypes(Type implementation, Type exposedDevice);
 
         static DeviceTypes FindExposedForimplementation(Type implementation) => new(implementation, implementation.BaseType.GetGenericArguments()[0]);
 
-        // TODO: see if assemblymanager can or should be able to produce these internal types
-        static readonly ImmutableArray<DeviceTypes> ImplementationTypes = new[]
+        public readonly InputContext context;
+        internal readonly NativeWindow window;
+
+        readonly OpenTkKeyboard keyboard;
+        readonly OpenTkMouse.Implementation mouse;
+        readonly LinkedList<OpenTkController.Implementation> controllers = [];
+
+        readonly GLFWCallbacks.MouseButtonCallback mouseCallback;
+        readonly GLFWCallbacks.KeyCallback keyCallback;
+
+        public DeviceHost(InputContext context, NativeWindow window)
         {
-            FindExposedForimplementation(typeof(OpenTkMouse.Implementation)),
-            FindExposedForimplementation(typeof(OpenTkKeyboard.Implementation)),
-            FindExposedForimplementation(typeof(OpenTkController.Implementation)),
-        };
+            this.window = window ?? new NativeWindow(new NativeWindowSettings {
+                Size = new OpenTK.Mathematics.Vector2i(1,1),
+                Title = "HiddenInput",
+                StartVisible = false,      // don't show
+                WindowBorder = OpenTK.Windowing.Common.WindowBorder.Hidden
+            });
 
-        readonly InputContext context = context;
-
-        readonly LinkedList<OpenTkDeviceImplementation> implementations = [];
+            this.context = context;
+            keyboard = new OpenTkKeyboard(this);
+            mouse = new OpenTkMouse.Implementation(new OpenTkMouse(this), 0);
+        }
 
         void InputDeviceHost.Update()
         {
-            foreach (OpenTkDeviceImplementation impl in implementations)
+            mouse.InputThreadUpdate();
+
+            foreach (OpenTkDeviceImplementation impl in controllers)
                 impl.InputThreadUpdate();
         }
 
         SysCol.IEnumerable<InputDevice> InputDeviceHost.RefreshDeviceList()
         {
+            yield return keyboard;
+            yield return mouse.parentInternal;
+
             // TODO: try and find a way to not duplicate or skip devices that have been disconnecterered and/or reconnected
-            SysCol.Dictionary<Type, SysCol.HashSet<int>> ints = [];
-            foreach (OpenTkDeviceImplementation impl in implementations)
+            SysCol.HashSet<int> ints = [];
+            foreach (OpenTkController.Implementation impl in controllers)
                 if (impl.parentInternal.IsConnected())
                 {
-                    ints.GetOrCreateValue(impl.GetType()).Add(impl.index);
+                    ints.Add(impl.index);
                     yield return impl.parentInternal;
                 }
                 else
-                    implementations.Remove(impl);
+                    controllers.Remove(impl);
 
-            foreach (DeviceTypes types in ImplementationTypes)
-                for (int i = 0; i < 1000; ++i)
+            for (int i = 0; i < 16; ++i) // Invalid joystick ID 16 (this is thrown from OpenTKs default GLFW error handler, if you find this exception inconvenient set your own error callback using GLFWProvider.SetErrorCallback)
+            {
+                if (ints.Contains(i))
+                    continue;
+
+                OpenTkController exposedDevice = new OpenTkController(this);
+                OpenTkController.Implementation d = new OpenTkController.Implementation(exposedDevice, i);
+                if (d.parentInternal.IsConnected())
                 {
-                    if (ints.TryGetValue(types.implementation, out SysCol.HashSet<int> set) && set.Contains(i))
-                        continue;
-
-                    InputDevice exposedDevice = (InputDevice)Activator.CreateInstance(types.exposedDevice, context);
-                    OpenTkDeviceImplementation d = (OpenTkDeviceImplementation)Activator.CreateInstance(types.implementation, exposedDevice, i);
-                    if (d.parentInternal.IsConnected())
-                    {
-                        implementations.Add(d);
-                        yield return d.parentInternal;
-                    }
+                    controllers.Add(d);
+                    yield return d.parentInternal;
                 }
+            }
         }
     }
 }

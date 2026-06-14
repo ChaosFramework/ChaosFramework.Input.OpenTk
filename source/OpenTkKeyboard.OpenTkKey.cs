@@ -1,5 +1,4 @@
-using OpenTK.Input;
-using TkKey = OpenTK.Input.Key;
+using TkKey = OpenTK.Windowing.GraphicsLibraryFramework.Keys;
 
 namespace ChaosFramework.Input.OpenTk
 {
@@ -7,7 +6,6 @@ namespace ChaosFramework.Input.OpenTk
     {
         public new partial class Key
             : Keyboard.Key
-            , OpenTkAxisImplementation<KeyboardState>
         {
             public readonly TkKey tkKey;
 
@@ -21,8 +19,8 @@ namespace ChaosFramework.Input.OpenTk
             public override string GetAxisString()
                 => $"Keyboard Key {hidKey}";
 
-            void OpenTkAxisImplementation<KeyboardState>.CreateEvents(KeyboardState newState)
-                => SetDown<Key>(newState.IsKeyDown(tkKey));
+            internal void SetDown(bool value)
+                => SetDown<Key>(value);
         }
     }
 }

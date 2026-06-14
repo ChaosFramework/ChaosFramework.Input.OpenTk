@@ -1,50 +1,42 @@
 using System;
 using System.Collections.Generic;
 using ChaosUtil.Reflection;
-using OpenTK.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace ChaosFramework.Input.OpenTk
 {
     partial class OpenTkController
         : ChaosFramework.Input.Controller
-        , StateTracker<GamePadState>
+        , StateTracker<GamepadState>
     {
         internal class Implementation(OpenTkController parent, int index)
-            : OpenTkDeviceImplementation<OpenTkController, GamePadState>(parent, index)
+            : OpenTkDeviceImplementation<OpenTkController, GamepadState>(parent, index)
             ;
 
-        static ButtonState MapButtonState(GamePadState tkState, Buttons hidUsage)
-        {
-            switch (hidUsage)
+        unsafe static InputAction MapButtonState(GamepadState tkState, Buttons hidUsage)
+            => (InputAction)(hidUsage switch
             {
-                case Buttons.A: return tkState.Buttons.A;
-                case Buttons.B: return tkState.Buttons.B;
-                case Buttons.X: return tkState.Buttons.X;
-                case Buttons.Y: return tkState.Buttons.Y;
-                case Buttons.LB: return tkState.Buttons.LeftShoulder;
-                case Buttons.RB: return tkState.Buttons.RightShoulder;
-                case Buttons.LS: return tkState.Buttons.LeftStick;
-                case Buttons.RS: return tkState.Buttons.RightStick;
-                case Buttons.Start: return tkState.Buttons.Start;
-                case Buttons.Back: return tkState.Buttons.Back;
-                case Buttons.Home: return tkState.Buttons.BigButton;
-                default: return ButtonState.Released;
-            }
-        }
+                < Buttons.A => 0,
+                < Buttons.LS => tkState.Buttons[(int)hidUsage - 1],
+                Buttons.Home => tkState.Buttons[8],
+                Buttons.LS => tkState.Buttons[9],
+                Buttons.RS => tkState.Buttons[10],
+                _ => 0
+            });
 
         readonly Dictionary<Buttons, Button> buttons = [];
         readonly DPad dPad;
         readonly Stick leftStick, rightStick;
         readonly Trigger leftTrigger, rightTrigger;
 
-        readonly TrackedState<GamePadState> state = new();
-        TrackedState<GamePadState> StateTracker<GamePadState>.state => state;
+        readonly TrackedState<GamepadState> state = new();
+        TrackedState<GamepadState> StateTracker<GamepadState>.state => state;
 
-        GamePadState StateTracker<GamePadState>.GetImmediate(int index)
-            => GamePad.GetState(index);
+        GamepadState StateTracker<GamepadState>.GetImmediate(int index)
+            => GLFW.GetGamepadState(index, out GamepadState result) ? result : default;
 
-        public OpenTkController(InputContext context)
-            : base(context)
+        public OpenTkController(DeviceHost deviceHost)
+            : base(deviceHost.context)
         {
             foreach (Buttons btn in Enum<Buttons>.GetValues())
                 buttons[btn] = new Button(this, btn);
@@ -92,6 +84,6 @@ namespace ChaosFramework.Input.OpenTk
         }
 
         public override sealed bool IsConnected()
-            => state.consistent.IsConnected;
+            => true; // TODO
     }
 }

@@ -1,9 +1,9 @@
-using OpenTK;
-using OpenTK.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace ChaosFramework.Input.OpenTk
 {
     using Axis;
+
     partial class OpenTkController
     {
         private class Stick
@@ -20,7 +20,7 @@ namespace ChaosFramework.Input.OpenTk
 
         private new class StickAxis(InputDevice parent, bool leftStick, bool x, int sign)
             : BoundedValueAxis(parent)
-            , OpenTkAxisImplementation<GamePadState>
+            , OpenTkAxisImplementation<GamepadState>
         {
             bool leftStick = leftStick;
             bool x = x;
@@ -29,11 +29,12 @@ namespace ChaosFramework.Input.OpenTk
             public override string GetAxisString()
                 => $"Controller Stick {(x ? "X" : "Y")} {(sign > 0 ? "positive" : "negative")}";
 
-            void OpenTkAxisImplementation<GamePadState>.CreateEvents(GamePadState newState)
+            unsafe void OpenTkAxisImplementation<GamepadState>.CreateEvents(GamepadState newState)
             {
-                Vector2 stick = leftStick ? newState.ThumbSticks.Left : newState.ThumbSticks.Right;
-                float paralell = x ? stick.X : stick.Y;
-                float effectiveValue = paralell * sign;
+                float effectiveValue = (x
+                    ? (leftStick ? newState.Axes[0] : newState.Axes[2])
+                    : (leftStick ? newState.Axes[1] : newState.Axes[3])
+                    ) * sign;
 
                 SetValue<StickAxis>(effectiveValue > 0 ? (effectiveValue < 1 ? effectiveValue : 1) : 0);
             }
