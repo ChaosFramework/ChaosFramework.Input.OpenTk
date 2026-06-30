@@ -1,8 +1,9 @@
-using OpenTK.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace ChaosFramework.Input.OpenTk
 {
     using Axis;
+
     partial class OpenTkController
     {
         private class DPad
@@ -19,7 +20,7 @@ namespace ChaosFramework.Input.OpenTk
 
         private class DPadAxis(InputDevice parent, bool x, int sign)
             : BoundedValueAxis(parent)
-            , OpenTkAxisImplementation<GamePadState>
+            , OpenTkAxisImplementation<GamepadState>
         {
             readonly bool x = x;
             readonly int sign = sign;
@@ -27,12 +28,12 @@ namespace ChaosFramework.Input.OpenTk
             public override string GetAxisString()
                 => $"Controller D-Pad {(x ? "X" : "Y")} {(sign > 0 ? "positive" : "negative")}";
 
-            void OpenTkAxisImplementation<GamePadState>.CreateEvents(GamePadState newState)
+            unsafe void OpenTkAxisImplementation<GamepadState>.CreateEvents(GamepadState newState)
             {
                 const float SQRT_2_HALF = 0.707106781f; // sqrt(2) / 2
 
-                int vx = (newState.DPad.IsLeft ? -1 : 0) + (newState.DPad.IsRight ? 1 : 0);
-                int vy = (newState.DPad.IsDown ? -1 : 0) + (newState.DPad.IsUp ? 1 : 0);
+                int vx = (newState.Buttons[14] != 0 ? -1 : 0) + (newState.Buttons[12] != 0 ? 1 : 0);
+                int vy = (newState.Buttons[13] != 0 ? -1 : 0) + (newState.Buttons[11] != 0 ? 1 : 0);
                 int paralell = x ? vx : vy;
                 bool anyOrthogonal = (x ? vy : vx) != 0;
 

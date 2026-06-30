@@ -1,35 +1,35 @@
-using OpenTK.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+using System;
 
 namespace ChaosFramework.Input.OpenTk
 {
-    public partial class OpenTkKeyboard
+    public unsafe sealed partial class OpenTkKeyboard
         : Keyboard
-        , StateTracker<KeyboardState>
     {
-        internal sealed class Implementation(OpenTkKeyboard parent, int index)
-            : OpenTkDeviceImplementation<OpenTkKeyboard, KeyboardState>(parent, index)
-            ;
+        readonly GLFWCallbacks.KeyCallback keyCallback;
 
-        readonly TrackedState<KeyboardState> state = new();
-        TrackedState<KeyboardState> StateTracker<KeyboardState>.state => state;
-
-        KeyboardState StateTracker<KeyboardState>.GetImmediate(int index)
-            => OpenTK.Input.Keyboard.GetState(index);
-
-        public OpenTkKeyboard(InputContext parent)
-            : base(parent)
-        { }
-
-        public override void AdvanceFrame()
+        public OpenTkKeyboard(DeviceHost deviceHost)
+            : base(deviceHost.context)
         {
-            base.AdvanceFrame();
-            state.AdvanceFrame();
+            GLFW.SetKeyCallback(deviceHost.window.WindowPtr, keyCallback = KeyCallback);
         }
 
         public override bool IsConnected()
-            => state.consistent.IsConnected;
+            => true; // TODO
 
         protected override Keyboard.Key GenerateKey(HidUsage hidUsage)
             => new Key(this, hidUsage);
+
+        void KeyCallback(Window* wnd, Keys key, int scanCode, InputAction action, KeyModifiers mod)
+        {
+            if (Key.tk2Hid.TryGetValue(key, out HidUsage hid) && hid != HidUsage.Unknown)
+                ((Key)this[hid]).SetDown(action switch
+                {
+                    InputAction.Press => true,
+                    InputAction.Repeat => true,
+                    InputAction.Release => false,
+                    _ => throw new InvalidOperationException()
+                });
+        }
     }
 }

@@ -1,4 +1,5 @@
-using OpenTK.Input;
+
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace ChaosFramework.Input.OpenTk
 {
@@ -6,7 +7,6 @@ namespace ChaosFramework.Input.OpenTk
     {
         public new class Button(Mouse parent, MouseButton button)
             : Mouse.Button(parent, Tk2Chaos(button))
-            , OpenTkAxisImplementation<MouseState>
         {
             static ButtonSemantic Tk2Chaos(MouseButton tkButton)
                 => tkButton switch
@@ -19,8 +19,8 @@ namespace ChaosFramework.Input.OpenTk
 
             public readonly MouseButton tkButton = button;
 
-            void OpenTkAxisImplementation<MouseState>.CreateEvents(MouseState newState)
-                => SetDown<Button>(newState.IsButtonDown(tkButton));
+            public void SetDown(bool down)
+                => SetDown<Button>(down);
         }
     }
 }

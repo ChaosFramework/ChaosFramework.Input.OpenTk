@@ -1,21 +1,22 @@
-using OpenTK.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace ChaosFramework.Input.OpenTk
 {
     using Axis;
+
     partial class OpenTkController
     {
         private class Button(InputDevice parent, Buttons tkButton)
             : ButtonAxis(parent)
-            , OpenTkAxisImplementation<GamePadState>
+            , OpenTkAxisImplementation<GamepadState>
         {
             readonly Buttons tkButton = tkButton;
 
             public override string GetAxisString()
                 => $"Controller Button {tkButton}";
 
-            void OpenTkAxisImplementation<GamePadState>.CreateEvents(GamePadState newState)
-                => SetDown<Button>(MapButtonState(newState, tkButton) == ButtonState.Pressed);
+            void OpenTkAxisImplementation<GamepadState>.CreateEvents(GamepadState newState)
+                => SetDown<Button>(MapButtonState(newState, tkButton) != InputAction.Release);
         }
     }
 }
