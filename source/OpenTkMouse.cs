@@ -31,7 +31,7 @@ namespace ChaosFramework.Input.OpenTk
         {
             this.deviceHost = deviceHost;
             GLFW.SetMouseButtonCallback(deviceHost.window.WindowPtr, buttonCallback = ButtonCallback);
-            deviceHost.window.MouseWheel += WheelCallback; // TODO: unbind event eventually
+            deviceHost.window.MouseWheel += WheelCallback;
         }
 
         public override void AdvanceFrame()
