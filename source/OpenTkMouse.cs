@@ -44,7 +44,7 @@ namespace ChaosFramework.Input.OpenTk
             => new Position(this, direction);
 
         protected override ImmutableArray<Mouse.Button> GenerateButtons()
-            => Array.ConvertAll(Enum<MouseButton>.GetValues(), GenerateButton);
+            => Array.ConvertAll(Enum<ButtonSemantic>.GetValues(), GenerateButton);
 
         protected override Mouse.Wheel GenerateWheel(WheelDirection dir)
             => new Wheel(this, dir);
@@ -52,11 +52,11 @@ namespace ChaosFramework.Input.OpenTk
         public override bool IsConnected()
             => true; // TODO
 
-        Button GenerateButton(MouseButton tkButton)
-            => new Button(this, tkButton);
+        Button GenerateButton(ButtonSemantic button)
+            => new Button(this, button);
 
-        void ButtonCallback(Window* window, MouseButton button, InputAction action, KeyModifiers mods)
-            => ((Button)buttons[(int)button]).SetDown(action != InputAction.Release);
+        void ButtonCallback(Window* window, MouseButton tkButton, InputAction action, KeyModifiers mods)
+            => ((Button)buttons[(int)Button.Tk2Chaos(tkButton)]).SetDown(action != InputAction.Release);
 
         void WheelCallback(MouseWheelEventArgs args)
         {
