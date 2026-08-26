@@ -24,6 +24,8 @@ namespace ChaosFramework.Input.OpenTk
                 _ => 0
             });
 
+        internal readonly Implementation implementation;
+
         readonly Dictionary<Buttons, Button> buttons = [];
         readonly DPad dPad;
         readonly Stick leftStick, rightStick;
@@ -35,9 +37,10 @@ namespace ChaosFramework.Input.OpenTk
         GamepadState StateTracker<GamepadState>.GetImmediate(int index)
             => GLFW.GetGamepadState(index, out GamepadState result) ? result : default;
 
-        public OpenTkController(DeviceHost deviceHost)
+        public OpenTkController(DeviceHost deviceHost, int index)
             : base(deviceHost.context)
         {
+            implementation = new Implementation(this, index);
             foreach (Buttons btn in Enum<Buttons>.GetValues())
                 buttons[btn] = new Button(this, btn);
 
@@ -84,6 +87,6 @@ namespace ChaosFramework.Input.OpenTk
         }
 
         public override sealed bool IsConnected()
-            => true; // TODO
+            => GLFW.JoystickPresent(implementation.index);
     }
 }
