@@ -44,7 +44,7 @@ namespace ChaosFramework.Input.OpenTk
         {
             mouse.InputThreadUpdate();
 
-            foreach (OpenTkDeviceImplementation impl in controllers)
+            foreach (OpenTkController.Implementation impl in controllers)
                 impl.InputThreadUpdate();
         }
 
@@ -69,12 +69,11 @@ namespace ChaosFramework.Input.OpenTk
                 if (ints.Contains(i))
                     continue;
 
-                OpenTkController exposedDevice = new OpenTkController(this);
-                OpenTkController.Implementation d = new OpenTkController.Implementation(exposedDevice, i);
-                if (d.parentInternal.IsConnected())
+                if (GLFW.JoystickPresent(i) && GLFW.JoystickIsGamepad(i))
                 {
-                    controllers.Add(d);
-                    yield return d.parentInternal;
+                    OpenTkController exposedDevice = new OpenTkController(this, i);
+                    controllers.Add(exposedDevice.implementation);
+                    yield return exposedDevice;
                 }
             }
         }
